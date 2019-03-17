@@ -34,14 +34,14 @@ class LoginViewController: UIViewController {
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self.present(alert, animated: true)
                 
-                print("Error: \(error?.localizedDescription)")
+                print("Error: \(String(describing: error?.localizedDescription))")
             }
         }
     }
     
     
     @IBAction func onSignUp(_ sender: Any) {
-        var user = PFUser()
+        let user = PFUser()
         user.username = usernameField.text
         user.password = passwordField.text
       //  user.email = "email@example.com" OPTIONAL
@@ -58,7 +58,7 @@ class LoginViewController: UIViewController {
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self.present(alert, animated: true)
                 
-                print("Error: \(error?.localizedDescription)")
+                print("Error: \(String(describing: error?.localizedDescription))")
             }
         }
     }

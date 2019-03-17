@@ -27,16 +27,16 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         myrefreshControl.addTarget(self, action: #selector(viewDidAppear(_:)), for: .valueChanged)
         tableView.refreshControl = myrefreshControl
-    
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        numberofPosts = 20
+        numberofPosts = 5
         let query = PFQuery(className:"Posts")
         query.includeKey("author")
         query.limit = numberofPosts
+        query.order(byDescending: "createdAt")
         
         query.findObjectsInBackground { (posts, error) in
             if posts != nil {
@@ -47,24 +47,6 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
     
     }
-    
-    
-    func loadMorePosts() {
-        
-        numberofPosts = numberofPosts + 20
-        let query = PFQuery(className:"Posts")
-        query.includeKey("author")
-        query.limit = numberofPosts
-        query.findObjectsInBackground { (posts, error) in
-            if posts != nil {
-                self.posts = posts!
-                self.tableView.reloadData()
-            }
-        }
-    }
-    
-    
-   
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return posts.count
@@ -77,7 +59,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         let user = post["author"] as! PFUser
         cell.usernameLabel.text = user.username
-        cell.captionLabel.text = post["caption"] as! String
+        cell.captionLabel.text = post["caption"] as? String
         
         let imageFile = post["image"] as! PFFileObject
         let urlString = imageFile.url!
@@ -90,11 +72,28 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
     }
     
-     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row + 1 == posts.count {
-            loadMorePosts()
+    
+ /*   func loadMorePosts() {                //FOR NOW THESE TWO FUNCTIONS ARE BROKEN. NOT SURE WHY YET.
+        
+        numberofPosts = numberofPosts + 2
+        let query = PFQuery(className:"Posts")
+        query.includeKey("author")
+        query.limit = numberofPosts
+        query.order(byDescending: "createdAt")
+        query.findObjectsInBackground { (posts, error) in
+            if posts != nil {
+                self.posts = posts!
+                self.tableView.reloadData()
+            }
         }
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row  == posts.count - 1 {
+            loadMorePosts()
+        }
+    } */
+    
 
     /*
     // MARK: - Navigation
