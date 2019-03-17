@@ -64,6 +64,10 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
         
     }
     
+    @IBAction func onCancelButton(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let image = info[.editedImage] as! UIImage
         

@@ -14,7 +14,7 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     @IBOutlet weak var tableView: UITableView!
     
-    var posts = [PFObject]()
+    var posts: [PFObject] = []
     var numberofPosts: Int!
     let myrefreshControl = UIRefreshControl()
     
@@ -27,12 +27,21 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         myrefreshControl.addTarget(self, action: #selector(viewDidAppear(_:)), for: .valueChanged)
         tableView.refreshControl = myrefreshControl
+        
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        imageView.contentMode = .scaleAspectFit
+        
+        let image = UIImage(named: "logo")
+        imageView.image = image
+        
+        self.navigationItem.titleView = imageView
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        numberofPosts = 5
+        numberofPosts = 10
         let query = PFQuery(className:"Posts")
         query.includeKey("author")
         query.limit = numberofPosts
@@ -72,8 +81,15 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
         
     }
     
-    
- /*   func loadMorePosts() {                //FOR NOW THESE TWO FUNCTIONS ARE BROKEN. NOT SURE WHY YET.
+    /*  //FOR NOW THESE TWO FUNCTIONS FOR INFINITE SCROLL ARE BROKEN. NOT SURE WHY YET.
+    func loadMorePosts() {
+        
+     
+        
+        let spinner = UIActivityIndicatorView(style: .gray)
+        spinner.startAnimating()
+        spinner.frame = CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: 44)
+        self.tableView.tableFooterView = spinner;
         
         numberofPosts = numberofPosts + 2
         let query = PFQuery(className:"Posts")
@@ -84,13 +100,18 @@ class FeedViewController: UIViewController, UITableViewDelegate, UITableViewData
             if posts != nil {
                 self.posts = posts!
                 self.tableView.reloadData()
+                self.myrefreshControl.endRefreshing()
             }
         }
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row  == posts.count - 1 {
-            loadMorePosts()
+    func tableView(_ tableView: UITableView,
+                   willDisplay cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath)
+    {
+        // At the bottom...
+        if (indexPath.row == posts.count - 1) {
+            loadMorePosts() // network request to get more data
         }
     } */
     

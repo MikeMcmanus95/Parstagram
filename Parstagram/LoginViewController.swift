@@ -30,7 +30,7 @@ class LoginViewController: UIViewController {
                 self.performSegue(withIdentifier: "loginSegue", sender: nil)
             }
             else {
-                let alert = UIAlertController(title: "Error", message: "Something went wrong, unable to sign in. Please try again.", preferredStyle: .alert)
+                let alert = UIAlertController(title: "Error", message: "Invalid username/password combination. Please try again.", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self.present(alert, animated: true)
                 
