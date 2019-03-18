@@ -15,6 +15,8 @@ class PostCell: UITableViewCell {
     @IBOutlet weak var captionLabel: UILabel!
     @IBOutlet weak var likeButton: UIButton!
     var liked:Bool = false
+    var isZooming = false
+    var originalImageCenter:CGPoint?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -22,7 +24,16 @@ class PostCell: UITableViewCell {
         // Initialization code
     }
     
+    
    @objc func pinch(sender:UIPinchGestureRecognizer) {
+    
+    if sender.state == .began {
+        let currentScale = self.photoView.frame.size.width / self.photoView.bounds.size.width
+        let newScale = currentScale*sender.scale
+            if newScale > 1 {
+                self.isZooming = true
+            }
+    }
         if sender.state == .changed {
             guard let view = sender.view else {return}
             let pinchCenter = CGPoint(x: sender.location(in: view).x - view.bounds.midX,
@@ -39,19 +50,35 @@ class PostCell: UITableViewCell {
                 self.photoView.transform = transform
                 sender.scale = 1
             }
-            if newScale > 7 {
-                newScale = 7
-            }
             else {
                 view.transform = transform
                 sender.scale = 1
             }
         }
-        else if sender.state == .ended {
+        else if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
+            guard let center = self.originalImageCenter else {return}
             UIView.animate(withDuration: 0.3, animations: {
                 self.photoView.transform = CGAffineTransform.identity
+                self.photoView.center = center
+            }, completion: { _ in
+                self.isZooming = false
             })
         }
+    }
+    
+    @objc func pan(sender: UIPanGestureRecognizer) {
+        if self.isZooming && sender.state == .began {
+            self.originalImageCenter = sender.view?.center
+        }
+        else if self.isZooming && sender.state == .changed {
+            let translation = sender.translation(in: self)
+                if let view = sender.view {
+                    view.center = CGPoint(x:view.center.x + translation.x,
+                                          y:view.center.y + translation.y)
+                }
+            sender.setTranslation(CGPoint.zero, in: self.photoView.superview)
+        }
+        
     }
     
 
@@ -60,8 +87,15 @@ class PostCell: UITableViewCell {
         
         photoView.isUserInteractionEnabled = true
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(self.pinch(sender:)))
+        pinch.delegate = self
         self.photoView.addGestureRecognizer(pinch)
         captionLabel.layer.zPosition = -1
+        usernameLabel.layer.zPosition = -1
+        likeButton.layer.zPosition = -1
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(self.pan(sender:)))
+        pan.delegate = self
+        self.photoView.addGestureRecognizer(pan)
         
     }
     @objc
@@ -98,6 +132,10 @@ class PostCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 
 }
